@@ -470,7 +470,15 @@ function downloadBlob(blob: Blob, fileName: string) {
 }
 
 export default function App() {
-  const [language, setLanguage] = useState<Language>("ja");
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      const urlLang = new URLSearchParams(window.location.search).get("lang");
+      if (urlLang && languages.some((l) => l.code === urlLang)) return urlLang as Language;
+      const stored = window.localStorage.getItem("inspection_lang");
+      if (stored && languages.some((l) => l.code === stored)) return stored as Language;
+    } catch { /* ignore */ }
+    return "ja";
+  });
   const [pdfDoc, setPdfDoc] = useState<PDFDocumentProxy | null>(null);
   const [pdfName, setPdfName] = useState("drawing");
   const [pageNumber, setPageNumber] = useState(1);
